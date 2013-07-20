@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>D3: A flexible, scalable bar chart</title>
+    <script type="text/javascript" src="/assets/js/d3.js"></script>
+    <style type="text/css">
+      /* No style rules here yet */
+    </style>
+  </head>
+  <body>
+    <p id="new">Click on this text to add a new data value to the chart!</p>
+    <p id="addOneBar">Click here to add an extra bar to to this chart.<p>
+<script type="text/javascript">
+
+      //Width and height
+      var w = 600;
+      var h = 250;
+
+      var dataset = [ 5, 10, 13, 19, 21, 25, 22, 18, 15, 13,
+              11, 12, 15, 20, 18, 17, 16, 18, 23, 25 ];
+
+      var xScale = d3.scale.ordinal()
+              .domain(d3.range(dataset.length))
+              .rangeRoundBands([0, w], 0.05);
+
+      var yScale = d3.scale.linear()
+              .domain([0, d3.max(dataset)])
+              .range([0, h]);
+
+      //Create SVG element
+      var svg = d3.select("body")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
+
+      //Create bars
+      svg.selectAll("rect")
+         .data(dataset)
+         .enter()
+         .append("rect")
+         .attr("x", function(d, i) {
+            return xScale(i);
+         })
+         .attr("y", function(d) {
+            return h - yScale(d);
+         })
+         .attr("width", xScale.rangeBand())
+         .attr("height", function(d) {
+            return yScale(d);
+         })
+         .attr("fill", function(d) {
+          return "rgb(0, 0, " + (d * 10) + ")";
+         });
+
+      //Create labels
+      svg.selectAll("text")
+         .data(dataset)
+         .enter()
+         .append("text")
+         .text(function(d) {
+            return d;
+         })
+         .attr("text-anchor", "middle")
+         .attr("x", function(d, i) {
+            return xScale(i) + xScale.rangeBand() / 2;
+         })
+         .attr("y", function(d) {
+            return h - yScale(d) + 14;
+         })
+         .attr("font-family", "sans-serif")
+         .attr("font-size", "11px")
+         .attr("fill", "white");
+
+      var bars = svg.selectAll("rect")
+                    .data(dataset);
+
+      //Respond to a click on a paragraph element
+
+      d3.selectAll("p")
+            .on("click", function() {
+
+              var paragraphID = d3.select(this).attr("id")
+              if (paragraphID == "new") {
+                 //New values for dataset
+                 var maxValue = 25;
+                 var numValues = dataset.length;
+                 dataset = [];
+                 for (var i = 0; i < numValues; i++){
+                 var newNumber = Math.floor(Math.random() * maxValue);
+                 dataset.push(newNumber);
+
+              //Update all rects
+              svg.selectAll("rect")
+                 .data(dataset)
+                 .transition()
+                 .duration(1000)
+                 .ease("linear")
+                 .attr("y", function(d) {
+                      return h - yScale(d);
+                 })
+                 .attr("height", function(d) {
+                      return yScale(d);
+                 })
+                 .attr("fill", function(d) {
+                    return "rgb(0, 0, " + (d * 10) + ")";
+                 });
+
+              svg.selectAll("text")
+                 .data(dataset)
+                 .transition()
+                 .duration(1000)
+                 .ease("linear")
+                 .text(function(d){
+                  return d;
+                 })
+                 .attr("x", function(d, i){
+                  return xScale(i) + xScale.rangeBand() / 2;
+                 })
+                 .attr("y", function(d){
+                  return h - yScale(d) + 14;
+                 });
+
+                    };
+                 yScale.domain([0, d3.max(dataset)])
+                 .attr("fill", "white");
+
+              //Tack on additional bar if click is on add bar paragraph
+              } else {
+                maxValue = 25;
+                newNumber = newNumber = Math.floor(Math.random() * maxValue);
+                dataset.push(newNumber);
+                xScale.domain(d3.range(dataset.length))
+
+                /*bars.enter()
+                   .append("rect")
+                   .attr("x", w)
+                   .attr("y", function(d) {
+                      return h - yScale(d);
+                   })
+                   .attr("width", xScale.rangeBand())
+                   .attr("height", function(d) {
+                      return yScale(d);
+                   })
+                   .attr("fill", function(d) {
+                      return "rgb(0, 0, " + (d * 10) + ")";
+                   });*/
+
+                bars.enter()
+                    .append("rect")
+                    .transition()
+                    .duration(500)
+                    .attr("x", function (d, i){
+                      return xScale(i);
+                    })
+                    .attr("y", function(d){
+                      return h - yScale(d);
+                    })
+                    .attr("width", xScale.rangeBand())
+                    .attr("height", function(d){
+                      return yScale(d);
+                    })
+                    .attr("fill", function(d) {
+                      return "rgb(0, 0, " + (d * 10) + ")";
+                    });
+
+                svg.selectAll("rect")
+                   .transition()
+                   .duration(500)
+                   .data(dataset)
+                   .enter()
+                   .append("rect")
+                   .attr("x", function(d, i) {
+                      return xScale(i);
+                   })
+                   .attr("y", function(d) {
+                      return h - yScale(d);
+                   })
+                   .attr("width", xScale.rangeBand())
+                   .attr("height", function(d) {
+                      return yScale(d);
+                   })
+                   .attr("fill", function(d) {
+                    return "rgb(0, 0, " + (d * 10) + ")";
+                   });
+
+                svg.selectAll("text")
+                   .data(dataset)
+                   .transition()
+                   .duration(500)
+                   .ease("linear")
+                   .text(function(d){
+                    return d;
+                   })
+                   .attr("x", function(d, i){
+                    return xScale(i) + xScale.rangeBand() / 2;
+                   })
+                   .attr("y", function(d){
+                    return h - yScale(d) + 14;
+                   })
+                   .attr("fill", "red");
+                   };
+      });
+
+    </script>
+  </body>
+</html>
